@@ -167,17 +167,17 @@ if (url.indexOf('xpmate/manual-upload') !== -1) {
                 apis: sortedData,
                 totalCount: sortedData.length
             }),
-            timeout: 10 // 秒
+            timeout: 60 // 增加超时时间到60秒
         }, (error, response, data) => {
             if (error) {
                 console.log(`❌ 发送失败: ${error}`);
-                $notification.post('XPMATE', '上传失败', '请检查服务器地址是否可达');
+                $notification.post('XPMATE', '上传失败', `错误: ${error}`);
 
                 $done({
                     response: {
                         status: 200,
                         headers: { 'Content-Type': 'text/html;charset=UTF-8' },
-                        body: getHtml('发送失败', `❌ 无法连接到服务器。<br>原因: ${error}`, '#f44336')
+                        body: getHtml('发送失败', `❌ 无法连接到服务器。<br>原因: ${error}<br><br>请检查：<br>1. 服务器(电脑)是否开机并运行 node server.js<br>2. 手机是否连接到同一 Wi-Fi<br>3. IP地址 ${SERVER_URL} 是否正确`, '#f44336')
                     }
                 });
             } else {
@@ -244,26 +244,10 @@ else if (apiInfo) {
     } else if (currentGroup.pairWith && !currentGroup.silent) {
         const hasPair = sessionData.apis[currentGroup.pairWith];
         const isNewCapture = !prevCapturedTypes.includes(apiInfo.type);
-        // 如果自己是新捕获的，或者配对的那个存在且我也刚捕获到（或者是刚捕获到的配对触发了这个逻辑？不对，这里是当前请求处理）
-        // 简单点：只要我是新捕获的，就通知。如果我是非静默的，我就负责通知。
         if (isNewCapture) {
             shouldNotify = true;
         }
     } else if (currentGroup.silent) {
-        // 静默组：如果我是新捕获的，并且我的配对还没有捕获，那我就得通知（作为此组的第一个）
-        // 或者：静默组永远不通知，只让主组通知？
-        // 如果先抓到silent组，后抓到pair组，pair组会通知 "3/5" -> 正确。
-        // 如果先抓到pair组，pair组会通知 "3/5" (其实只有1个)。然后在抓到silent组... silent组不通知？那用户怎么知道进度？
-        // 应该：
-        // 1. Silent组捕获时，如果Pair还没捕获，Silent组通知。
-        // 2. Pair组捕获时，如果Silent还没捕获，Pair组通知。
-        // 3. 如果两个都捕获了（不管谁后谁先），最后那个负责通知。
-
-        // 优化逻辑：
-        // 只要是新捕获的，就判断是否需要通知。
-        // 对于成对的：
-        // - 如果两个都齐了 -> 发送通知
-        // - 如果只到了我自己（我是第一个） -> 发送通知
         shouldNotify = !prevCapturedTypes.includes(apiInfo.type);
     }
 
