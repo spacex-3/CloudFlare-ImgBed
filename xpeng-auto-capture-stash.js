@@ -7,7 +7,7 @@ const url = req.url;
 const reqHeaders = req.headers;
 
 // 你的XPMATE服务器地址（需要修改为你的实际地址）
-const SERVER_URL = 'http://192.168.1.43:3000/api/auto-capture-batch';
+const SERVER_URL = 'http://192.168.1.15:3000/api/auto-capture-batch';
 const CAPTURE_SESSION_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
 
 // 精确定义需要捕获的5个API
